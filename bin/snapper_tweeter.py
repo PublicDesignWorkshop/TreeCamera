@@ -14,5 +14,5 @@ path = root + "/" + filename
 #os.system("touch /tmp/raspistill")
 os.system("raspistill -w 1280 -h 1024 -o " + path)
 #os.system("touch /tmp/t_update")
-os.system("t update '" + formatted_date + "' -f " + path)
+os.system("t update -f " + path)
 

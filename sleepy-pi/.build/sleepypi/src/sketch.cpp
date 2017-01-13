@@ -48,24 +48,28 @@ const int LED_PIN = 13;
 // ++++++++++++++++++++ Change me ++++++++++++++++++
 // .. Setup the Periodic Timer
 // .. use either eTB_SECOND or eTB_MINUTE or eTB_HOUR
-eTIMER_TIMEBASE  PeriodicTimer_Timebase     = eTB_MINUTE;   // e.g. Timebase set to seconds
+eTIMER_TIMEBASE  PeriodicTimer_Timebase     = eTB_HOUR;   // e.g. Timebase set to seconds
 // 168 hours = 1 week
-uint8_t          PeriodicTimer_Value        = 3;           // Timer Interval in units of Timebase e.g 10 seconds
+uint8_t          PeriodicTimer_Value        = 6;           // Timer Interval in units of Timebase e.g 10 seconds
 // ++++++++++++++++++++ End Change me ++++++++++++++++++
 
 tmElements_t tm;
+
 
 void alarm_isr()
 {
 
 }
 
+
 void setup()
 {
   // Configure "Standard" LED pin
   pinMode(LED_PIN, OUTPUT);		
+  digitalWrite(LED_PIN,LOW);
+
   pinMode(9, INPUT_PULLUP);
-  digitalWrite(LED_PIN,LOW);		// Switch off LED
+
   Serial.begin(9600);
   Serial.println("Starting...");
   delay(50);
@@ -81,28 +85,9 @@ void setup()
 
   printTimeNow();
 
-  /* Serial.print("Periodic Interval Set for: ");
-  Serial.print(PeriodicTimer_Value);
-  switch(PeriodicTimer_Timebase)
-  {
-    case eTB_SECOND:
-      Serial.println(" seconds");
-      break;
-    case eTB_MINUTE:
-      Serial.println(" minutes");
-      break;
-    case eTB_HOUR:
-      Serial.println(" hours");
-    default:
-        Serial.println(" unknown timebase");
-        break;
-  } */
-
 }
 
-void loop() 
-{
-    bool piStatus;
+void loop() {
     bool piRunning;
     SleepyPi.rtcClearInterrupts();
 
@@ -115,26 +100,24 @@ void loop()
     detachInterrupt(0);
   SleepyPi.ackTimer1();
 
-  // Serial.println("I've Just woken up on a Periodic Timer!");
-  // printTimeNow();
-  digitalWrite(LED_PIN,HIGH);    // Switch on LED
-  SleepyPi.enablePiPower(true);
-  delay(50);
-  digitalWrite(LED_PIN,LOW);    // Switch off LED
+    digitalWrite(LED_PIN,HIGH);    // Switch on LED
+    delay(1000);
+    digitalWrite(LED_PIN,LOW);    // Switch off LED
+    SleepyPi.enablePiPower(true);
 
-  // expect the RPi to let us know when it's ready to shut down
-  // we want this to happen in this loop iteration because
-  // otherwise it won't get checked until the SleepyPi wakes up again
-  // which could be a long time from now
-  // Expect the RPi to set GPIO 27 / SleepyPi pin 9 LOW because
-  // the default GPIO pin state appears to be high
+    // expect the RPi to let us know when it's ready to shut down
+    // we want this to happen in this loop iteration because
+    // otherwise it won't get checked until the SleepyPi wakes up again
+    // which could be a long time from now
+    // Expect the RPi to set GPIO 27 / SleepyPi pin 9 LOW because
+    // the default GPIO pin state appears to be high
 
     piRunning = SleepyPi.checkPiStatus(false);
     while (digitalRead(9)) {
+      Serial.print("Pin 9: ");
+      Serial.println(digitalRead(9));
       piRunning = SleepyPi.checkPiStatus(false);
     }
-    // Serial.print("Pin 9: ");
-    // Serial.println(digitalRead(9));
     // Serial.println("Here's where we'd shut down..");
     SleepyPi.piShutdown();
 }
